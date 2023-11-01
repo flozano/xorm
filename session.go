@@ -237,6 +237,12 @@ func (session *Session) ForUpdate() *Session {
 	return session
 }
 
+// NoCheckVersion disable record version check.
+func (session *Session) NoCheckVersion() *Session {
+	session.statement.CheckVersion = false
+	return session
+}
+
 // NoAutoCondition disable generate SQL condition from beans
 func (session *Session) NoAutoCondition(no ...bool) *Session {
 	session.statement.SetNoAutoCondition(no...)
