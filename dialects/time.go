@@ -23,6 +23,8 @@ func FormatTime(dialect Dialect, sqlTypeName string, t time.Time) (v interface{}
 	case schemas.TimeStamp:
 		if dialect.URI().DBType == schemas.POSTGRES {
 			v = t.Format("2006-01-02 15:04:05.000")
+		} else if dialect.URI().DBType == schemas.SQLITE {
+			v = t.Format("2006-01-02 15:04:05.000")
 		} else {
 			v = t.Format("2006-01-02 15:04:05")
 		}
