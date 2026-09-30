@@ -427,6 +427,14 @@ res, err := engine.Transaction(func(session *xorm.Session) (interface{}, error) 
 })
 ```
 
+* `BeginTx` 使用 `sql.TxOptions` 开始事务，`SetDefaultTxOptions` 设置该引擎所有 `Begin()` 使用的事务选项。
+
+```Go
+err := session.BeginTx(&sql.TxOptions{Isolation: sql.LevelReadCommitted})
+
+engine.SetDefaultTxOptions(&sql.TxOptions{Isolation: sql.LevelReadCommitted})
+```
+
 * 上下文缓存，如果启用，那么针对单个对象的查询将会被缓存到系统中，可以被下一个查询使用。
 
 ```Go

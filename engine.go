@@ -47,6 +47,8 @@ type Engine struct {
 	DatabaseTZ *time.Location // The timezone of the database
 
 	logSessionID bool // create session id
+
+	defaultTxOptions *sql.TxOptions
 }
 
 // NewEngine new a db manager according to the parameter. Currently support four
@@ -1409,6 +1411,11 @@ func (engine *Engine) Context(ctx context.Context) *Session {
 // SetDefaultContext set the default context
 func (engine *Engine) SetDefaultContext(ctx context.Context) {
 	engine.defaultContext = ctx
+}
+
+// SetDefaultTxOptions sets the options Session.Begin uses for new transactions, nil keeps the driver defaults
+func (engine *Engine) SetDefaultTxOptions(opts *sql.TxOptions) {
+	engine.defaultTxOptions = opts
 }
 
 // PingContext tests if database is alive

@@ -437,6 +437,14 @@ res, err := engine.Transaction(func(session *xorm.Session) (interface{}, error) 
 })
 ```
 
+* `BeginTx` begins a transaction with `sql.TxOptions`, `SetDefaultTxOptions` sets the options every `Begin()` of the engine uses.
+
+```Go
+err := session.BeginTx(&sql.TxOptions{Isolation: sql.LevelReadCommitted})
+
+engine.SetDefaultTxOptions(&sql.TxOptions{Isolation: sql.LevelReadCommitted})
+```
+
 * Context Cache, if enabled, current query result will be cached on session and be used by next same statement on the same session.
 
 ```Go

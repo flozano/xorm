@@ -5,13 +5,43 @@
 package tests
 
 import (
+	"database/sql"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"xorm.io/xorm"
 	"xorm.io/xorm/internal/utils"
 	"xorm.io/xorm/names"
+	"xorm.io/xorm/schemas"
 )
+
+func TestBeginTxAndDefaultTxOptionsReachTheDriver(t *testing.T) {
+	session := testEngine.NewSession()
+	defer session.Close()
+	beginAndCommit := func(begin func(*xorm.Session) error) error {
+		if err := begin(session); err != nil {
+			return err
+		}
+		return session.Commit()
+	}
+	unsupported := &sql.TxOptions{Isolation: sql.LevelLinearizable}
+	driverRejectsUnsupported := testEngine.Dialect().URI().DBType != schemas.SQLITE
+
+	assert.NoError(t, beginAndCommit(func(session *xorm.Session) error { return session.BeginTx(&sql.TxOptions{}) }))
+	if driverRejectsUnsupported {
+		assert.Error(t, beginAndCommit(func(session *xorm.Session) error { return session.BeginTx(unsupported) }))
+	}
+
+	engine := testEngine.(interface{ SetDefaultTxOptions(*sql.TxOptions) })
+	engine.SetDefaultTxOptions(unsupported)
+	defer engine.SetDefaultTxOptions(nil)
+	if driverRejectsUnsupported {
+		assert.Error(t, beginAndCommit((*xorm.Session).Begin))
+	}
+	engine.SetDefaultTxOptions(nil)
+	assert.NoError(t, beginAndCommit((*xorm.Session).Begin))
+}
 
 func TestTransaction(t *testing.T) {
 	assert.NoError(t, PrepareEngine())

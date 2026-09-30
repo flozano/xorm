@@ -4,10 +4,17 @@
 
 package xorm
 
-// Begin a transaction
+import "database/sql"
+
+// Begin a transaction with the engine's default transaction options
 func (session *Session) Begin() error {
+	return session.BeginTx(session.engine.defaultTxOptions)
+}
+
+// BeginTx begins a transaction with the given options, nil means the driver defaults
+func (session *Session) BeginTx(opts *sql.TxOptions) error {
 	if session.isAutoCommit {
-		tx, err := session.DB().BeginTx(session.ctx, nil)
+		tx, err := session.DB().BeginTx(session.ctx, opts)
 		if err != nil {
 			return err
 		}
