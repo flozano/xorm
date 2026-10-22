@@ -873,12 +873,20 @@ func (db *postgres) getSchema() string {
 	return DefaultPostgresSchema
 }
 
+// WSR means "White Space Replacement".
+const WSR = "\uFFFE"
+
+const needQuoteRunes = "-" + WSR
+
 func (db *postgres) needQuote(name string) bool {
 	if db.IsReserved(name) {
 		return true
 	}
 	for _, c := range name {
 		if c >= 'A' && c <= 'Z' {
+			return true
+		}
+		if strings.ContainsRune(needQuoteRunes, c) {
 			return true
 		}
 	}

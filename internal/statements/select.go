@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strings"
 
+	"xorm.io/xorm/dialects"
 	"xorm.io/xorm/schemas"
 )
 
@@ -51,7 +52,20 @@ func (statement *Statement) Cols(columns ...string) *Statement {
 
 // ColumnStr returns column string
 func (statement *Statement) ColumnStr() string {
-	return statement.dialect.Quoter().Join(statement.ColumnMap, ", ")
+	cols := make([]string, len(statement.ColumnMap))
+	var modified = false
+	for i, c := range statement.ColumnMap {
+		if strings.ContainsRune(c, ' ') {
+			c = strings.ReplaceAll(c, " ", dialects.WSR)
+			modified = true
+		}
+		cols[i] = c
+	}
+	s := statement.dialect.Quoter().Join(cols, ", ")
+	if modified {
+		s = strings.ReplaceAll(s, dialects.WSR, " ")
+	}
+	return s
 }
 
 // AllCols update use only: update all columns
