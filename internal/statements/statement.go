@@ -758,7 +758,12 @@ func (statement *Statement) CondDeleted(col *schemas.Column) builder.Cond {
 		if col.TimeZone != nil {
 			tmZone = col.TimeZone
 		}
-		cond = builder.Eq{colName: time.Unix(0, 0).In(tmZone).Format("2006-01-02 15:04:05.999999999")}
+		layout := "2006-01-02 15:04:05.999999999"
+		if col.SQLType.Name == schemas.TimeStamp && col.Length == 0 && statement.dialect.URI().DBType == schemas.SQLITE {
+			// SQLite compares the text FormatColumnTime wrote, which has milliseconds.
+			layout = "2006-01-02 15:04:05.000"
+		}
+		cond = builder.Eq{colName: time.Unix(0, 0).In(tmZone).Format(layout)}
 	default:
 		cond = builder.Eq{colName: utils.ZeroTime1}
 	}
