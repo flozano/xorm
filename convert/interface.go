@@ -16,6 +16,8 @@ func Interface2Interface(userLocation *time.Location, v any) (any, error) {
 		return nil, nil
 	}
 	switch vv := v.(type) {
+	case *any:
+		return *vv, nil
 	case *int64:
 		return *vv, nil
 	case *int8:

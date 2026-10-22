@@ -6,7 +6,6 @@ package dialects
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"net/url"
@@ -1647,30 +1646,12 @@ func (p *pqDriver) Parse(driverName, dataSourceName string) (*URI, error) {
 	return db, nil
 }
 
+// GenScanResult lets the driver choose the Go type, as database/sql does
+// for an any destination: NULL stays nil, int4 is int64, float8 is float64
+// and timestamptz or date are time.Time.
 func (p *pqDriver) GenScanResult(colType string) (any, error) {
-	switch colType {
-	case "VARCHAR", "TEXT":
-		var s sql.NullString
-		return &s, nil
-	case "BIGINT", "BIGSERIAL", "INT8":
-		var s sql.NullInt64
-		return &s, nil
-	case "SMALLINT", "INT", "INT4", "INTEGER", "SERIAL":
-		var s sql.NullInt32
-		return &s, nil
-	case "FLOAT", "FLOAT4", "REAL", "DOUBLE PRECISION":
-		var s sql.NullFloat64
-		return &s, nil
-	case "DATETIME", "TIMESTAMP":
-		var s sql.NullTime
-		return &s, nil
-	case "BOOL":
-		var s sql.NullBool
-		return &s, nil
-	default:
-		var r sql.RawBytes
-		return &r, nil
-	}
+	var r any
+	return &r, nil
 }
 
 type pqDriverPgx struct {
