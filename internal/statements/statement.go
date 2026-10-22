@@ -649,7 +649,11 @@ func (statement *Statement) ConvertSQLOrArgs(sqlOrArgs ...any) (string, []any, e
 }
 
 func (statement *Statement) formatTimeArg(arg any) (any, bool) {
-	const timeFormat = "2006-01-02 15:04:05"
+	timeFormat := "2006-01-02 15:04:05"
+	if statement.dialect.URI().DBType == schemas.POSTGRES {
+		// Keep the fraction and the offset, as the driver would send them.
+		timeFormat = "2006-01-02 15:04:05.999999Z07:00"
+	}
 	if arg == nil {
 		return nil, false
 	}

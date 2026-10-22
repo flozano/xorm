@@ -293,3 +293,15 @@ func TestColumnStrWithWhiteSpace(t *testing.T) {
 	statement.Cols(`"first name"`, "Caption")
 	assert.EqualValues(t, "`first name`, `Caption`", statement.ColumnStr())
 }
+
+func TestConvertSQLOrArgsTimePostgres(t *testing.T) {
+	pg, err := dialects.OpenDialect("postgres", "postgres://user:pass@localhost/db?sslmode=disable")
+	assert.NoError(t, err)
+	tz := time.FixedZone("UTC+9", 9*60*60)
+	statement := NewStatement(pg, tagParser, tz)
+
+	value := time.Date(2024, time.January, 2, 3, 4, 5, 123456789, time.UTC)
+	_, args, err := statement.convertSQLOrArgs("SELECT * FROM test WHERE updated_at = ?", value, &value)
+	assert.NoError(t, err)
+	assert.Equal(t, []any{"2024-01-02 12:04:05.123456+09:00", "2024-01-02 12:04:05.123456+09:00"}, args)
+}
