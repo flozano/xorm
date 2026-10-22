@@ -278,3 +278,18 @@ func TestAsDbCondWhenFieldValueIsDriverValuer(t *testing.T) {
 	assert.False(t, ok)
 	assert.NoError(t, err)
 }
+
+func TestCol2NewCols(t *testing.T) {
+	assert.EqualValues(t, []string{"a", "b"}, col2NewCols("a, b"))
+	assert.EqualValues(t, []string{"a", "b", "c"}, col2NewCols("`a`", `"b"`, "c"))
+	assert.EqualValues(t, []string{"a, b"}, col2NewCols("`a, b`"))
+	assert.EqualValues(t, []string{"a, b"}, col2NewCols(`"a, b"`))
+	assert.EqualValues(t, []string{"a"}, col2NewCols("", "a"))
+}
+
+func TestColumnStrWithWhiteSpace(t *testing.T) {
+	statement, err := createTestStatement()
+	assert.NoError(t, err)
+	statement.Cols(`"first name"`, "Caption")
+	assert.EqualValues(t, "`first name`, `Caption`", statement.ColumnStr())
+}

@@ -242,3 +242,11 @@ func TestPostgresModifyColumnCommentSQLWithSchema(t *testing.T) {
 	commentSQL := modifier.ModifyColumnCommentSQL("t", col)
 	assert.Equal(t, `COMMENT ON COLUMN "myschema"."t"."price" IS 'new comment'`, commentSQL)
 }
+
+func TestPostgresNeedQuote(t *testing.T) {
+	db := &postgres{}
+	assert.False(t, db.needQuote("user_name"))
+	assert.True(t, db.needQuote("UserName"))
+	assert.True(t, db.needQuote("user-name"))
+	assert.True(t, db.needQuote("user"+WSR+"name"))
+}
