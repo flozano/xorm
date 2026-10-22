@@ -48,6 +48,12 @@ func FormatColumnTime(dialect Dialect, dbLocation *time.Location, col *schemas.C
 		if col.Length > 0 {
 			// we can use int(...) casting here as it's very unlikely to a huge sized field
 			layout += "." + strings.Repeat("0", int(col.Length))
+		} else if col.SQLType.Name == schemas.TimeStamp && dialect != nil {
+			switch dialect.URI().DBType {
+			case schemas.POSTGRES, schemas.SQLITE:
+				// millisecond resolution when no precision is given
+				layout += ".000"
+			}
 		}
 		return t.Format(layout), nil
 	case schemas.Varchar:
