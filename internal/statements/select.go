@@ -20,11 +20,21 @@ func (statement *Statement) Select(str string) *Statement {
 func col2NewCols(columns ...string) []string {
 	newColumns := make([]string, 0, len(columns))
 	for _, col := range columns {
-		col = strings.ReplaceAll(col, "`", "")
-		col = strings.ReplaceAll(col, `"`, "")
-		ccols := strings.Split(col, ",")
-		for _, c := range ccols {
-			newColumns = append(newColumns, strings.TrimSpace(c))
+		if col == "" {
+			continue
+		}
+		switch col[0] {
+		case '`':
+			col = strings.ReplaceAll(col, "`", "")
+			newColumns = append(newColumns, col)
+		case '"':
+			col = strings.ReplaceAll(col, `"`, "")
+			newColumns = append(newColumns, col)
+		default:
+			ccols := strings.Split(col, ",")
+			for _, c := range ccols {
+				newColumns = append(newColumns, strings.TrimSpace(c))
+			}
 		}
 	}
 	return newColumns
